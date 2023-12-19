@@ -127,6 +127,7 @@
                     if (response.data) { 
                         this.fields.imageid = response.data;
                         this.saveArtDetails();
+                        this.resetPreviewImage();
                         this.$emit('close');
                     } else {
                         alert('Error: Image upload failed but successful post');
@@ -156,6 +157,7 @@
            
             clearFormFields() {
                 this.fields = {};
+                thi.closeModal();
             },
 
             uploadImage(event) {

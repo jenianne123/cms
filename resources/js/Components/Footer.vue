@@ -4,10 +4,7 @@
       <div class="flex justify-between">
         <div class="">
           <p>
-            Developed by: Gwen, Jenny and Tasha
-          </p>
-          <p>
-            Mentored by: Cristine Gay
+            Developed by Information Technology Center
           </p>
           <p>
             © 2023 University Library Content Management System

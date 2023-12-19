@@ -4,7 +4,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Account</h5>
+                    <h5 class="modal-title">Add QuickLinks</h5>
                     <button type="button" class="close" @click="closeModal">
                       <span>&times;</span>
                     </button>

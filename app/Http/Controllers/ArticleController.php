@@ -135,7 +135,7 @@ public function saveImage(Request $request) {
                 } else {
                     $imageModel = new Image;
                     $imageModel->filename = $filename;
-                    $imageModel->orig_filename = $originalFilename; // Use the correct variable
+                     $imageModel->orig_filename = $originalFilename; // Use the correct variable
                     $imageModel->user_id = auth()->user()->id;
                 }
 

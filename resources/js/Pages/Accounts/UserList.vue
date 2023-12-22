@@ -30,7 +30,6 @@
         <div v-if="filteredUserList.length > 0" class="table-container">
           <table class="table" >
             <thead class="thead items-center">
-              <th>#</th>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
@@ -40,7 +39,6 @@
             </thead>
             <tbody>
               <tr v-for="(user, index) in filteredUserList.slice(0,5)" :key="index" class="row"  >
-                <td style="width: 30px; text-align:center; padding: 15px;">{{ index + 1 }}</td>
                 <td style="width: 500px; text-align:center; padding: 15px;">{{user.name}}</td>
                 <td style="width: 500px; text-align:center; padding: 15px;">{{user.email}}</td>
                 <td style="width: 100px; text-align:center; padding: 15px;">{{roleLabels[user.role]}}</td>
@@ -54,13 +52,6 @@
                   </ul>
                 </td>
                 <td style="width: 200px; text-align:center; padding: 15px;">
-                  <!-- <label class="switch">
-                    <input type="checkbox" v-model="user.status" @change="toggleUserStatus(user)">
-                    <div class="slider round" :class="{ 'active-slider': user.status === 'deactive' }"></div>
-                  </label> -->
-                  <!-- <button class="buttonDelTable items-center shadow rounded-md h-9 w-auto m-2 px-4 text-white bg-red" :class="{ 'bg-red': user.status === 'deactive' }" @click="toggleUserStatus(user)">
-                    {{ user.status === 0 ? 'ACTIVATE' : 'DEACTIVATE' }}
-                  </button> -->
                   <button class="buttonDelTable items-center shadow rounded-md h-9 w-auto m-2 px-4 text-white bg-green  "
                           :class="{ 'bg-red': user.status === 1 }"
                           @click="toggleUserStatus(user)">
@@ -73,8 +64,8 @@
                     <img src="/images/edit.svg" alt="" class="icon">
                   </button>
 
-                  <button @click="editPass(user.id)" >
-                    Change Password
+                  <button @click="editPass(user.id)" class="ml-3">
+                    <img src="/images/password.svg" alt="" class="icon">
                   </button>
                 </td>
               </tr>
@@ -95,7 +86,7 @@
   import EditAccModal from '@/Components/AccountModal/EditAccModal.vue';
   import ChangePasswordModal from '@/Components/AccountModal/ChangePasswordModal.vue';
   import axios from 'axios';
-  
+  import Swal from 'sweetalert2';
   export default {
 
     components: {
@@ -259,25 +250,29 @@
 
       toggleUserStatus(user) {
          const action = user.status === 'active' ? 'deactivate' : 'activate';
-        if (confirm(`Are you sure to ${user.status === 1 ? 'deactivate' : 'activate'} this account?`)) {
-          const action = user.status === 1 ? 'deactivate' : 'activate';
-          axios.post(`/${action}-acc/${user.id}`).then((response) => {
-            user.status = user.status === 'deactivate' ? 'active' : 'deactive';
-            alert(`Account successfully ${action.charAt(0).toUpperCase() + action.slice(1)}d!`);
-            this.initialData();
-          }).catch((error) => {
-            alert(`Error while ${action}ing: ${error}`);
-          });
-        } else {
-          alert('Cancelled!');
-        }
+         Swal.fire({
+                    title: "Are you sure?",
+                    text: (`Are you sure to ${user.status === 1 ? 'deactivate' : 'activate'} this account?`),
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "Cancel",
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                      const action = user.status === 1 ? 'deactivate' : 'activate';
+                      axios.post(`/${action}-acc/${user.id}`).then((response) => {
+                        user.status = user.status === 'deactivate' ? 'active' : 'deactive';
+                        Swal.fire(`Account successfully ${action.charAt(0).toUpperCase() + action.slice(1)}d!`);
+                        this.initialData();
+                      }).catch((error) => {
+                        Swal.fire(`Error while ${action}ing: ${error}`);
+                      });
+                    }else if (result.dismiss === Swal.DismissReason.cancel){
+                        Swal.fire("Cancelled", "Your content is safe :)", "info");
+                          }
+                    });         
       },
-    
-      // toggleCheckbox() {
-      //   this.checkbox = user.status === 1;
-
-      //   this.$emit('setCheckboxVal', this.checkbox)
-      // },
 
       fetchUserList() {
         axios.get('/userlist').then((response) => {

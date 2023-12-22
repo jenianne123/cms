@@ -128,6 +128,7 @@
 
 <script>
     import axios from 'axios';
+    import Swal from "sweetalert2";
 
     export default {
         props: {
@@ -209,11 +210,19 @@
 
                     axios.post(`/submit-user`, { ...this.fields, userAccess }).then((response) => {
                       if (response.data) {
-                        alert('Successfully added!');
-                        this.clearFormFields();
-                        this.$emit('close');
+                        Swal.fire({
+                                icon: "success",
+                                title: "Content is uploaded successfully!",
+                            }).then(() => {
+                              this.$emit('close');
+                              this.clearFormFields();
+                            });
                       } else {
-                        alert('Error saving user data');
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Something went wrong!",
+                        });
                       }
                     });
                   }
@@ -276,7 +285,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 9999;
+        z-index: 999;
     }
 
     .modal-content {

@@ -14,7 +14,7 @@
                           <label for="password" class="block mb-2 text-sm font-medium text-gray-900">
                               Password
                           </label>
-                          <input type="password" name="password" id="password" v-model="fields.password" class="input-field" autocomplete="new-password">
+                          <input type="password" name="password" id="password" v-model="fields.password" class="input-field" autocomplete="new-password" required>
                           <p v-if="fields.password && !isPasswordValid" class="text-red-600">
                               Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.
                           </p>
@@ -22,7 +22,7 @@
 
                         <div class="mb-4">
                             <label for="password_confirmation" class="block mb-2 text-sm font-medium text-gray-900">Confirm Password</label>
-                            <input type="password" name="password_confirmation" id="password_confirmation" v-model="fields.password_confirmation" class="input-field" autocomplete="new-password" @input="checkPasswordMatch">
+                            <input type="password" name="password_confirmation" id="password_confirmation" v-model="fields.password_confirmation" class="input-field" autocomplete="new-password" @input="checkPasswordMatch" required>
                             <p v-if="fields.password_confirmation && !passwordMatch" class="text-red-600">Password and Confirm Password do not match.</p>
                         </div>
                         <div class="text-center mb-4">
@@ -39,6 +39,7 @@
   
 <script>
   import axios from 'axios';
+  import Swal from 'sweetalert2';
   
   export default {
     props: {
@@ -99,10 +100,18 @@
         axios.post('/submit-password', this.fields).then((response) => {
           if (response.data) {
             // User data has been updated successfully
-            alert('User updated successfully');
-            this.$emit('close');
+            Swal.fire({
+                icon: "success",
+                title: "Content is uploaded successfully!",
+            }).then(() => {
+              this.$emit('close');
+            });
           } else {
-            alert('Error while updating user data');
+            Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Something went wrong!",
+                        });
           }
         });
       },
@@ -130,7 +139,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
+      z-index: 999;
     }
   
     .modal-content {

@@ -36,6 +36,7 @@
   
 <script>
   import axios from 'axios';
+  import Swal from 'sweetalert2';
   
   export default {
     props: {
@@ -71,10 +72,18 @@
                 if(response.data){
                     this.initialData();
                     // alert('success');
-                    alert('Updated Successfully');
-                    this.$emit('close');
+                    Swal.fire({
+                                icon: "success",
+                                title: "Content is uploaded successfully!",
+                            }).then(() => {
+                                this.$emit('close');
+                            });
                 }else{
-                    alert('Error');
+                    Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Something went wrong!",
+                        });
                 }
             });
         },
@@ -101,7 +110,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
+      z-index: 999;
     }
   
     .modal-content {

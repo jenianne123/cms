@@ -29,7 +29,7 @@
                 <div v-if="filteredPageList.length > 0" class="table-container">
                     <table class="table">
                         <thead class="thead items-center">
-                            <th>#</th>
+                            <!-- <th>#</th> -->
                             <th>Titles</th>
                             <th>Types</th>
                             <th>Parent Menu</th>
@@ -38,7 +38,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="(gen,index) in filteredPageList.slice(0, 5)" :key="index" class="row">
-                                <td style="width: 30px; text-align:center; padding: 15px;">{{index + 1}}</td>
+                                <!-- <td style="width: 30px; text-align:center; padding: 15px;">{{index + 1}}</td> -->
                                 <td style="width: 200px; text-align:center; padding: 15px;">{{gen.title}}</td>
                                 <td style="width: 200px; text-align:center; padding: 15px;">{{gen.type}}</td>
                                 <td style="width: 200px; text-align:center; padding: 15px;">{{gen.parent}}</td>
@@ -68,6 +68,7 @@
     import PageModal from '@/Components/PagesModal/PageModal.vue';
     import EditPageModal from '@/Components/PagesModal/EditPageModal.vue';
     import ClassicEditor from '/js/ckeditor_custom';
+    import Swal from "sweetalert2";
 
 
     export default {
@@ -120,6 +121,7 @@
             },
 
             deleteGen(id) {
+                
                 if (confirm('Are you sure?')) {
                     axios.post('/delete-content', { id: id }).then(({ data }) => {
                         if (data) {
@@ -168,10 +170,18 @@
                         this.initialData();
                         // alert('success');
                         this.fields = {};
-                        alert('success');
-                        this.$emit('success');
+                        Swal.fire({
+                            icon: "success",
+                            title: "Content " + (this.fields.id ? "updated" : "uploaded") + " successfully!",
+                        }).then(() => {
+                            this.showModal = false;
+                        });
                     }else{
-                        alert('Error');
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Something went wrong!",
+                        });
                     }
                 });
             },

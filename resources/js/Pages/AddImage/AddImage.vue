@@ -30,14 +30,14 @@
           <div v-if="filteredImageList.length > 0" class="table-container">
             <table class="table">
               <thead class="thead items-center">
-                <th>#</th>
+                <!-- <th>#</th> -->
                 <th>Image</th>
                 <th>Filename</th>
                 <th>Action</th>
               </thead>
               <tbody>
                 <tr v-for="(image, index) in filteredImageList.slice(0,5)" :key="index" class="row">
-                  <td style="width: 30px; text-align:center; padding: 15px;">{{ index + 1 }}</td>
+                  \<!-- <td style="width: 30px; text-align:center; padding: 15px;">{{ index + 1 }}</td> -->
                   <td style="width: 600px; text-align: center; padding: 15px;">
                     <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
                       <img v-if="image.url" :src="getImageUrl(image.filename)" alt="Image" class="image" />
@@ -55,6 +55,7 @@
               </tbody>
             </table>
           </div>
+          <p v-if="noMatchMessage" class="message">{{ noMatchMessage }}</p>
         </div>
       </div>
     </div>
@@ -63,6 +64,7 @@
 <script>
 import axios from 'axios';
 import ImageModal from '@/Pages/AddImage/ImageModal.vue';
+import Swal from "sweetalert2";
 
 export default {
   components: {
@@ -142,19 +144,41 @@ export default {
     },
 
     deleteImage(id) {
-      if(confirm('Are you sure?')){
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it?",
+        cancelButtonText: "No, cancel",
+        reverseButtons: true,
+      }).then((result) => {
+          if (result.isConfirmed) {
+              console.log("Deleting QuickLink with ID:", id);
+              console.log("ID for deletion:", id);
+
         axios.delete(`/delete-image/${id}`)
           .then((response) => {
             if (response.data) {
-              this.fetchImageList();
+              Swal.fire({
+                    icon: "success",
+                    title: "Content Deleted Successfully!",
+                }).then(() => {
+                    this.$emit('close');
+                });
+                this.fetchImageList();
+            } else{
+              Swal.fire({
+                  icon: "error",
+                  title: "Oops...",
+                  text: "Something went wrong!",
+              });
             }
           })
-          .catch((error) => {
-            console.error(error);
-          });
-        }else{
-            alert('Cancelled')
+        }else if (result.dismiss === Swal.DismissReason.cancel){
+                Swal.fire("Cancelled", "Your content is safe :)", "info");
         }
+    });
     },
 
     fetchImageList() {

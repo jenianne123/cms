@@ -13,22 +13,26 @@
                 <div class="modal-body">
                     <form @submit.prevent="saveArticle">
                         <div>
-                            <div class="mb-4">
-                                <label for="title" value="title" class="label" >Title</label>
+                            <div class="">
+                                <label for="title" value="title" class="block mb-2 text-sm font-medium text-gray-900" >Title</label>
                             </div>
                             <div>
-                                <input type="text" id="title" v-model="fields.title" class="mt-1 block w-full" required>
+                                <input type="text" id="title" v-model="fields.title" class="input-field" required>
                             </div>
                         </div>
 
                         <div class="mt-4">
-                            <label for="description" value="description" class="label">Description</label>
-                            <textarea name="description" id="description" v-model="fields.description" class="mt-1 block w-full rounded-md textArea resizable" required></textarea>
+                            <label for="description" value="description" class="block mb-2 text-sm font-medium text-gray-900">
+                                Description
+                            </label>
+                            <textarea name="description" id="description" v-model="fields.description" class="input-field resizable" required></textarea>
                         </div>
 
-                        <div class="mt-4">
-                            <label for="type" value="Type" >Types</label>
-                            <select id="type" v-model="fields.type" required>
+                        <div class="mt-4 ">
+                            <label for="type" value="Type" class="block mb-2 text-sm font-medium text-gray-900" >
+                                Types
+                            </label>
+                            <select id="type" v-model="fields.type" required class="input-field-select">
                                 <option value=1>Announcement</option>
                                 <option value=2>News</option>
                                 <option value=3>Articles</option>
@@ -36,9 +40,11 @@
                         </div>
 
                         <div class="mt-4" v-if="fields.type == 2 || fields.type == 3">
-                            <label for="upload" value="image" >Uploads Image</label>
+                            <label for="upload" value="image" class="block mb-2 text-sm font-medium text-gray-900 ">
+                                Uploads Image
+                            </label>
                          
-                            <input type="file"  @change="uploadImage" class="mt-1 block w-full">
+                            <input type="file" accept="image/*"  @change="uploadImage" class="block border border-[#D1D5DB] p-2">
                                 <div v-if="previewImage" >
                                 
                                     <img :src="previewImage" alt="Image Preview" style="max-width: 200px; max-height: 200px;">
@@ -52,7 +58,9 @@
                         </div>
 
                         <div class="mt-4" >
-                            <label for="contents" value="contents">Content</label> 
+                            <label for="contents" value="contents" class="block mb-2 text-sm font-medium text-gray-900">
+                                Content
+                            </label> 
                             <ckeditor :editor="editor" :config="editorConfig" v-model="fields.contents"></ckeditor>
                            </div>
 
@@ -74,7 +82,8 @@
 <script>
     import axios from 'axios';
     import ClassicEditor from '/js/ckeditor_custom';
-    
+    import Swal from "sweetalert2";
+
     export default {
         props: {
             show: Boolean,
@@ -106,53 +115,59 @@
             initialData() {
                 axios.get(`/articlelist`).then((response) => {
                     this.article_list = response.data;
-
-
                 });
             },
 
             saveArticle(){
-            if(this.fields.type == 1){
-                this.saveArtDetails();
-            }else{
-                const imageFormData = new FormData();
-                imageFormData.append('image', this.imageFile);
-                imageFormData.append('type', this.fields.type);
-                console.log()
-
-                if(this.fields.imageid){
-                    imageFormData.append('id', this.fields.imageid);
-                }
-                axios.post('upload-image', imageFormData ).then((response) => {
-                    if (response.data) { 
-                        this.fields.imageid = response.data;
-                        this.saveArtDetails();
-                        this.resetPreviewImage();
-                        this.$emit('close');
-                    } else {
-                        alert('Error: Image upload failed but successful post');
-                    }
-                })
-                .catch((imageError) => {
-                    console.error('An error occurred during image upload:', imageError);
-                    alert('Error: Image upload failed unable to post');
-                });
-            }
-            
-        },
-        saveArtDetails(){ 
-            axios.post('submit-article',this.fields).then((response)=>{
-                if(response.data){
-                        this.initialData(); 
-                        this.fields = {};
-                        alert('success');
-                        this.$emit('success');
-                        this.$emit('close');
+                if(this.fields.type == 1){
+                    this.saveArtDetails();
                 }else{
-                        alert('Error');
+                    const imageFormData = new FormData();
+                    imageFormData.append('image', this.imageFile);
+                    imageFormData.append('type', this.fields.type);
+                    console.log()
+
+                    if(this.fields.imageid){
+                        imageFormData.append('id', this.fields.imageid);
+                    }
+                    axios.post('upload-image', imageFormData ).then((response) => {
+                        if (response.data) { 
+                            this.fields.imageid = response.data;
+                            this.saveArtDetails();
+                            this.resetPreviewImage();
+                            this.$emit('close');
+                        } else {
+                            Swal.fire("Error: Image upload failed but successful post");
+                        }
+                    })
+                    .catch((imageError) => {
+                        console.error('An error occurred during image upload:', imageError);
+                        Swal.fire("Error: Image upload failed but successful post");
+                    });
                 }
-            });
-        },
+                
+            },
+
+            saveArtDetails(){ 
+                axios.post('submit-article',this.fields).then((response)=>{
+                    if(response.data){
+                            this.initialData(); 
+                            this.fields = {};
+                            Swal.fire({
+                                icon: "success",
+                                title: "Content is uploaded successfully!",
+                            }).then(() => {
+                                this.showModal = false;
+                            });
+                    }else{
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Something went wrong!",
+                        });
+                    }
+                });
+            },
 
            
             clearFormFields() {
@@ -177,7 +192,7 @@
                     reader.readAsDataURL(file);
                 } else {
                     // Alert the user that only image files are allowed
-                    alert('Please select a valid image file (JPEG, PNG, GIF).');
+                    Swal.fire('Please select a valid image file (JPEG, PNG, GIF).');
                     // Optionally, you can clear the input value to allow selecting a new file
                     event.target.value = '';
                 }
@@ -237,7 +252,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
+      z-index: 999;
     }
   
     .modal-content {
@@ -286,6 +301,18 @@
       width: 100%;
       transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     }
+
+    .input-field-select {
+      background-color: #F3F4F6;
+      border: 1px solid #D1D5DB;
+      color: #111827;
+      font-size: 14px;
+      border-radius: 8px;
+      padding: 10px;
+      outline: none;
+      width: fit-content;
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
   
   
     .close {
@@ -296,4 +323,5 @@
         resize: vertical; /* Allow vertical resizing only */
         min-height: 200px; /* Set a minimum height to prevent the textarea from becoming too small */
     }
+    
   </style>

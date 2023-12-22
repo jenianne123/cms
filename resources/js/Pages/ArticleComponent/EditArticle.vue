@@ -34,12 +34,12 @@
                         <div class="mt-4" v-if="fields.type == 2 || fields.type == 3">
                             <label for="upload" value="image" >Upload Image</label>
                          
-                            <input  type="file"  @change="uploadImage" class="mt-1 block w-full" >
+                            <input  type="file" accept="image/*" @change="uploadImage" class="mt-1 block w-full" >
  
-                            <!-- <div v-if="existingImage">
-                            <img :src="getImageUrl(existingImage)" alt="Existing Image" style="max-width: 200px; max-height: 200px;">
-                        
-                            </div> -->
+                            <div v-if="previewImage">
+                            <img :src="previewImage" alt="Existing Image" style="max-width: 200px; max-height: 200px;">
+                
+                            </div>
                             <div v-if="existingImage">
                                 Existing Image:
                                 <img :src="getImageUrl(existingImage, fields.type)" style="max-width: 200px; max-height: 200px;" alt="Existing Image">
@@ -62,9 +62,6 @@
                             <button type="Submit" class="w-20 text-white shadow bg-green hover:opacity-70 focus:shadow-outline focus:outline-none font-bold py-2 px-4 rounded mx-2">
                                 Submit
                             </button>
-                            <button @click="clearFormFields" class="w-20 shadow text-white bg-red hover:opacity-70 focus:shadow-outline focus:outline-none font-bold py-2 px-4 rounded mx-2" type="button">
-                                Cancel
-                            </button>
                         </div>
                     </form>
                 </div>
@@ -76,7 +73,8 @@
 <script>
     import axios from 'axios';
     import ClassicEditor from '/js/ckeditor_custom';
-    
+    import Swal from "sweetalert2";
+
     export default {
         props: {
             show: Boolean,
@@ -105,90 +103,46 @@
             closeModal() {
                 this.$emit('success'); // Emit the 'close' event to close the modal
             },
-        
-            // initialData() {
-            //     axios.get(`/articlelist`).then((response) => {
-            //         this.article_list = response.data;
 
+            async saveArticle() {
+                try {
+                    if (this.fields.type === 1) {
+                    await this.saveArtDetails();
+                    } else {
+                    const imageFormData = new FormData();
+                    imageFormData.append('image', this.imageFile);
+                    imageFormData.append('type', this.fields.type);
 
-            //     });
-            // },
-           
-        //     saveArticle(){
-        //     if(this.fields.type == 1){
-        //         this.saveArtDetails();
-        //     }else{
-        //         const imageFormData = new FormData();
-        //         imageFormData.append('image', this.imageFile);
-        //         console.log()
+                    if (this.fields.imageid) {
+                        imageFormData.append('id', this.fields.imageid);
+                    }
 
-        //         if(this.fields.imageid){
-        //             imageFormData.append('id', this.fields.imageid);
-        //         }
-        //         axios.post('upload-image', imageFormData).then((response) => {
-        //             // if (response.data) { 
-        //             //     this.fields.imageid = response.data
-        //             //     this.saveArtDetails()
-        //             // } else {
-        //             //     alert('Error: Image upload failed but successful post(?)');
-        //             // }
-        //             this.fields.imageid = response.data
-        //             this.saveArtDetails()
-        //         })
-        //         .catch((imageError) => {
-        //             console.error('An error occurred during image upload:', imageError);
-        //             alert('Error: Image upload failed unable to post');
-        //         });
-        //     }
-               
-            
-        // },
-        // saveArtDetails(){
-        //     axios.post('submit-article',this.fields).then((response)=>{
-        //         // if(response.data){
-        //         //         this.initialData()
-        //         //         this.fields = {}
-        //         //         alert('success')
-        //         //         this.$emit('success');
-                        
-        //         // }else{
-        //         //         alert('Error');
-        //         // }
-        //         alert('success')
-        //         this.$emit('success');
-        //     });
-        // },
-        async saveArticle() {
-        try {
-            if (this.fields.type === 1) {
-            await this.saveArtDetails();
-            } else {
-            const imageFormData = new FormData();
-            imageFormData.append('image', this.imageFile);
-            imageFormData.append('type', this.fields.type);
+                    const response = await axios.post('upload-image', imageFormData);
+                    if(response.data)
+                        this.fields.imageid = response.data;
+                        await this.saveArtDetails();
+                    }
 
-            if (this.fields.imageid) {
-                imageFormData.append('id', this.fields.imageid);
-            }
-
-            const response = await axios.post('upload-image', imageFormData);
-            if(response.data)
-                this.fields.imageid = response.data;
-                await this.saveArtDetails();
-            }
-
-            // alert('Success');
-            this.$emit('success');
-        } catch (error) {
-            console.error('Error saving article:', error);
-            alert('Error saving article');
-        }
-        },
+                    // alert('Success');
+                    this.$emit('success');
+                } catch (error) {
+                    console.error('Error saving article:', error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error Editing Content",
+                        text: response.data.error,
+                    });
+                }
+            },
 
             async saveArtDetails() {
-            const response = await axios.post('submit-article', this.fields);
-            alert('Success Edit');
-            this.$emit('success');
+                const response = await axios.post('submit-article', this.fields);
+                Swal.fire({
+                    icon: "success",
+                    title: "Successfully Edited!",
+                }).then(() => {
+                    this.initialData();
+                });
             },
 
            
@@ -213,7 +167,7 @@
                         reader.readAsDataURL(file);
                     } else {
                         // Alert the user that only image files are allowed
-                        alert('Please select a valid image file (JPEG, PNG, GIF).');
+                        Swal.fire('Please select a valid image file (JPEG, PNG, GIF).');
                         // Optionally, you can clear the input value to allow selecting a new file
                         event.target.value = '';
                     }
@@ -226,7 +180,6 @@
             this.editorData='';
         },
        
-        // edit(id){
         //     axios.get(`/article-data/${id}`).then(response=> {
         //         this.fields = response.data.details;
                 
@@ -252,30 +205,7 @@
         getImageUrl(filename, type){
             // return `/storage/news/${filename}`;
             return `/storage/${type === 2 ? 'news' : 'articles'}/${filename}`;
-        },
-        // async edit() {
-        //     try {
-        //         const response = await axios.get(`/article-data/${this.fields.id}`);
-
-        //         // Set fields based on the response data
-        //         this.fields = response.data.details;
-
-        //         // Set existingImage and previewImage
-        //         this.existingImage = response.data.existingImage;
-        //         this.previewImage = this.getImageUrl(this.existingImage);
-
-        //         // If there is an existing image, create a File object with an empty content and set the filename
-        //         if (this.fields.imageid) {
-        //             const blob = new Blob([''], { type: 'application/octet-stream' });
-        //             this.imageFile = new File([blob], this.fields.filename);
-        //         }
-        //     } catch (error) {
-        //         console.error('Error fetching article data:', error);
-        //         alert('Error fetching article data');
-        //     }
-        // },
-
-            
+        },  
         },
         mounted() {
         this.editorData="";

@@ -31,14 +31,14 @@
                 <div v-if="filteredFaqList.length > 0" class="table-container" >
                     <table class="table">
                         <thead class="thead items-center">
-                            <th>#</th>
+                            <!-- <th>#</th> -->
                             <th>Questions</th>
                             <th>Answer</th>
                             <th>Action</th>
                         </thead>
                         <tbody>
                             <tr v-for="(faq, index) in filteredFaqList.slice(0, 5)" :key="index" class="row">
-                                <td style="width: 30px; text-align:center; padding: 15px;">{{ index + 1 }}</td>
+                                <!-- <td style="width: 30px; text-align:center; padding: 15px;">{{ index + 1 }}</td> -->
                                 <td style="width: 500px; text-align:justify; padding: 15px;">{{ faq.question }}</td>
                                 <td style="width: 700px; text-align:justify; padding: 15px;">{{ faq.answer }}</td>
                                 <td style="width: 200px; text-align: center;">
@@ -64,6 +64,7 @@
     import FAQModal from '@/Components/FaqModal/FAQModal.vue';
     import EditFaqModal from '@/Components/FaqModal/EditFaqModal.vue';
     import axios from 'axios';
+    import Swal from "sweetalert2";
 
     export default {
         components:{
@@ -104,19 +105,40 @@
             },
 
             deleteFaqs(id){
-                if(confirm('Are you sure?')){
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it?",
+                    cancelButtonText: "No, cancel",
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        console.log("Deleting QuickLink with ID:", id);
+                        console.log("ID for deletion:", id);
+
                     axios.post('/delete-faqs',{id}).then(({data})=>{
                         if(data){
-                            alert('success');
-                            this.$emit('success');
-                            this.initialData();
+                            Swal.fire({
+                                    icon: "success",
+                                    title: "Content Deleted Successfully!",
+                                }).then(() => {
+                                    this.showModal = false;
+                                });
+                                this.initialData();
                         }else{
-                            alert('error');
+                            Swal.fire({
+                                    icon: "error",
+                                    title: "Oops...",
+                                    text: "Something went wrong!",
+                                });
                         }
                     })
-                }else{
-                    alert('Cancelled')
+                }if (result.dismiss === Swal.DismissReason.cancel){
+                        Swal.fire("Cancelled", "Your content is safe :)", "info");
                 }
+                });
             },
 
             edit(id) {

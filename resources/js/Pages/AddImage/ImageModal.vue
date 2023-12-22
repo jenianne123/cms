@@ -14,6 +14,7 @@
                 <div class="mt-2" @dragover.prevent @drop="onDrop" @click="triggerFileInput">
                   <input
                     ref="fileInput"
+                    accept="image/*"
                     @change="onFileChange"
                     class="!important w-full text-black bg-gray-200 appearance-none border-2 border-gray-200 rounded py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                     id="image"
@@ -23,7 +24,7 @@
                     style="display: none;"
                   />
                   <div class="drop-area">
-                    <span v-if="!previewImageUrls.length">
+                    <span v-if="!previewImageUrls.length" >
                       Drag & Drop files here, or click to select files.
                     </span>
                     <div v-if="previewImageUrls.length > 0" class="flex">
@@ -50,6 +51,7 @@
   
 <script>
     import axios from "axios";
+import Swal from "sweetalert2";
     
     export default {
         props: {
@@ -66,6 +68,9 @@
         },
 
         methods: {
+          resetPreviewImage() {
+            this.previewImageUrls = [];// Reset the previewImage variable
+            },
             onFileChange(event) {
                 const files = event.target.files;
 
@@ -82,29 +87,13 @@
                         this.previewImageUrls.length > 0;
                       });
                     });
-
-                    // // Loop through each file and append it to FormData
-                    // for (let i = 0; i < files.length; i++) {
-                    //     const file = files[i];
-                    //     const reader = new FileReader();
-
-                    //     // Read the file and push the URL to the previewImageUrls array
-                    //     reader.onload = () => {
-                    //     this.previewImageUrls.push(reader.result);
-                    //     };
-
-                    //     reader.readAsDataURL(file);
-
-                    //     // Append the file to the images array
-                    //     this.images.push(file);
-                    // }
                 }
             },
 
             uploadImage() {
                 // Check if files are selected
                 if (!this.images.length) {
-                    alert("Please select at least one image");
+                    Swal.fire("Please select at least one image");
                     return;
                 }
 
@@ -118,10 +107,23 @@
                 axios
                 .post("/uploadimage", formData)
                 .then((response) => {
-                    this.$emit("close");
-                })
-                .catch((error) => {
-                    console.log(error)
+                  if(response.data){
+                    Swal.fire({
+                        icon: "success",
+                        title: "Content is uploaded successfully!",
+                    }).then(() => {
+                      this.resetPreviewImage();
+                      this.$emit('close');
+
+                    });
+
+                  }else{
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    });
+                  }
                 });
             },
 
@@ -133,22 +135,24 @@
 
             closeModal() {
                 this.$emit('close'); // Emit the 'close' event to close the modal
+                this.resetPreviewImage();
             },
 
             readImage(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
+              return new Promise((resolve) => {
+                const reader = new FileReader();
 
-        reader.onload = () => {
-          this.previewImageUrls.push(reader.result);
-          this.images.push(file);
+                reader.onload = () => {
+                  this.previewImageUrls.push(reader.result);
+                  this.images.push(file);
 
-          resolve();
-        };
+                  resolve();
+                };
 
-        reader.readAsDataURL(file);
-      });
-    },
+                reader.readAsDataURL(file);
+              });
+            },
+
             triggerFileInput() {
               // When the drop area is clicked, trigger a click on the hidden file input
               this.$refs.fileInput.click();
@@ -187,7 +191,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
+      z-index: 999;
     }
   
     .modal-content {

@@ -103,12 +103,13 @@
                     this.filteredFaqList = this.faq_list;
                 });
             },
+            // Hello
 
             deleteFaqs(id){
                 Swal.fire({
                     title: "Are you sure?",
                     text: "You won't be able to revert this!",
-                    icon: "warning",
+                    icon: "warning", 
                     showCancelButton: true,
                     confirmButtonText: "Yes, delete it?",
                     cancelButtonText: "No, cancel",

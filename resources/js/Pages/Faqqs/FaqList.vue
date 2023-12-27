@@ -103,7 +103,6 @@
                     this.filteredFaqList = this.faq_list;
                 });
             },
-            // Hello
 
             deleteFaqs(id){
                 Swal.fire({
@@ -139,6 +138,7 @@
                 }if (result.dismiss === Swal.DismissReason.cancel){
                         Swal.fire("Cancelled", "Your content is safe :)", "info");
                 }
+
                 });
             },
 

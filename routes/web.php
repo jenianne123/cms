@@ -145,7 +145,7 @@ Route::post('/submit-password', [UserController::class, 'editPassword']);
 
 //for generic pages
 Route::get('/genericlist',[GenericController::class, 'table']);
-Route::post('/delete-content',[GenericController::class, 'deleteContent']);
+Route::post('/delete-page',[GenericController::class, 'deleteContent']);
 Route::get('/content-data/{id?}',[GenericController::class, 'editForm']);
 Route::post('/submit-page',[GenericController::class, 'savePage']);
 Route::get('/get-parent/{id?}',[GenericController::class, 'getParent']);

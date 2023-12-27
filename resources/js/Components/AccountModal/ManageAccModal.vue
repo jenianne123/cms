@@ -81,7 +81,7 @@
                                     </div>
                                 </div>
                                 <div class="checkbox-container">
-                                  <p>Accounts:</p>
+                                  <p>Quick Links:</p>
                                   <input
                                     type="checkbox"
                                     id="accounts"

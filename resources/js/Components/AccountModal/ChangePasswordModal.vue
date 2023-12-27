@@ -102,7 +102,7 @@
             // User data has been updated successfully
             Swal.fire({
                 icon: "success",
-                title: "Content is uploaded successfully!",
+                title: "Password Changed Successfully!",
             }).then(() => {
               this.$emit('close');
             });

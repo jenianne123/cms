@@ -178,7 +178,7 @@ export default {
             this.fetchUserList();
             Swal.fire({
                 icon: "success",
-                title: "Content is uploaded successfully!",
+                title: "Content is Updated Successfully!",
             }).then(() => {
               this.$emit('close');
             });

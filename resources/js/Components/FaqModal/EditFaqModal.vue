@@ -74,16 +74,16 @@
                     // alert('success');
                     Swal.fire({
                                 icon: "success",
-                                title: "Content is uploaded successfully!",
+                                title: "Content is edited successfully!",
                             }).then(() => {
                                 this.$emit('close');
                             });
                 }else{
                     Swal.fire({
-                            icon: "error",
-                            title: "Oops...",
-                            text: "Something went wrong!",
-                        });
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    });
                 }
             });
         },

@@ -37,7 +37,7 @@
               </thead>
               <tbody>
                 <tr v-for="(image, index) in filteredImageList.slice(0,5)" :key="index" class="row">
-                  \<!-- <td style="width: 30px; text-align:center; padding: 15px;">{{ index + 1 }}</td> -->
+                  <!-- <td style="width: 30px; text-align:center; padding: 15px;">{{ index + 1 }}</td> -->
                   <td style="width: 600px; text-align: center; padding: 15px;">
                     <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
                       <img v-if="image.url" :src="getImageUrl(image.filename)" alt="Image" class="image" />

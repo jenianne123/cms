@@ -92,6 +92,7 @@
 <script>
 import axios from 'axios';
 import ClassicEditor from '/js/ckeditor_custom';
+import Swal from 'sweetalert2';
 
 
 export default {
@@ -143,7 +144,7 @@ export default {
 
         deleteGen(id) {
             if(confirm('Are you sure?')){
-                axios.post('/delete-content',{id}).then(({data})=>{
+                axios.post('/delete-page',{id}).then(({data})=>{
                     if(data){
                         alert('success');
                         this.$emit('success');
@@ -188,10 +189,18 @@ export default {
                     this.initialData();
                     // alert('success');
                     this.fields = {};
-                    alert('Saved Successfully');
-                    this.$emit('close');
+                    Swal.fire({
+                        icon: "success",
+                        title: "Content is uploaded successfully!",
+                    }).then(() => {
+                        this.$emit('close');
+                    });
                 }else{
-                    alert('Error');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    });
                 }
             });
         },
@@ -247,7 +256,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 999;
 }
 
 .modal-content {

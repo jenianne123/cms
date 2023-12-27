@@ -122,14 +122,33 @@
 
             deleteGen(id) {
                 
-                if (confirm('Are you sure?')) {
-                    axios.post('/delete-content', { id: id }).then(({ data }) => {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning", 
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it?",
+                    cancelButtonText: "No, cancel",
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        console.log("Deleting QuickLink with ID:", id);
+                        console.log("ID for deletion:", id);
+                    axios.post('/delete-page', { id}).then(({ data }) => {
                         if (data) {
-                            alert('success');
-                            this.$emit('success');
-                            this.initialData();
+                            Swal.fire({
+                                    icon: "success",
+                                    title: "Content Deleted Successfully!",
+                                }).then(() => {
+                                    this.showModal = false;
+                                });
+                                this.initialData();
                         } else {
-                            alert('Record Cannot Be Deleted');
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "Record Cannot be Deleted",
+                            });
                         }
                     }).catch(error => {
                         if (error.response && error.response.status === 400) {
@@ -137,12 +156,17 @@
                             alert(error.response.data.message);
                         } else {
                             console.error('Error deleting record:', error);
-                            alert('An error occurred while deleting the record.');
+                            Swal.fire({
+                                    icon: "error",
+                                    title: "Oops...",
+                                    text: "Something went wrong!",
+                                });
                         }
-                    });
-                } else {
-                    alert('Cancelled');
+                    })
+                } if (result.dismiss === Swal.DismissReason.cancel){
+                        Swal.fire("Cancelled", "Your content is safe :)", "info");
                 }
+            });
             },
 
         
